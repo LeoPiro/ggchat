@@ -3225,9 +3225,13 @@ mg_tabwindow_de_cb (GtkWidget *widget, GdkEvent *event, gpointer user_data)
 		list = list->next;
 	}
 
+	// Unset always-on-top before quitting to prevent hang
+	gtk_window_set_keep_above(GTK_WINDOW(parent_window), FALSE);
+
 	mg_open_quit_dialog (TRUE);
 	return TRUE;
 }
+
 
 #ifdef G_OS_WIN32
 static GdkFilterReturn

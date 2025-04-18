@@ -175,11 +175,14 @@ typedef struct session_gui
 
 	guint16 is_tab;	/* is tab or toplevel? */
 	guint16 ul_hidden;	/* userlist hidden? */
+	
+
 
 } session_gui;
 
 extern GdkPixmap *channelwin_pix;
 extern GdkPixmap *dialogwin_pix;
+void open_bosstracker_window(GtkWidget *widget, gpointer data);
 
 #define SPELL_ENTRY_GET_TEXT(e) ((char *)(gtk_entry_get_text (GTK_ENTRY(e))))
 #define SPELL_ENTRY_SET_TEXT(e,txt) gtk_entry_set_text(GTK_ENTRY(e),txt)

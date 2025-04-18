@@ -25,6 +25,7 @@ hexchat_gtk_sources = [
   'textgui.c',
   'urlgrab.c',
   'userlistgui.c',
+  './bosstracker.c',
   'xtext.c'
 ]
 
@@ -32,8 +33,13 @@ gtk_dep = dependency('gtk+-2.0', version: '>= 2.24.0')
 hexchat_gtk_deps = [
   hexchat_common_dep,
   libgmodule_dep, # used by libsexy
-  gtk_dep
+  gtk_dep,
+  dependency('libcurl') # ✅ Added for bosstracker
 ]
+
+webkit_dep = dependency('webkit2gtk-4.0', required: false)
+hexchat_gtk_deps += webkit_dep
+
 
 if gtk_dep.get_pkgconfig_variable('target') == 'x11'
   hexchat_gtk_deps += dependency('x11')

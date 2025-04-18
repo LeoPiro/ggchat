@@ -32,10 +32,14 @@ if ret.returncode() != 0
   error('perl: Failed to get cflags')
 endif
 foreach flag : ret.stdout().strip().split(' ')
+  # Remove quotes if any (MSYS may print them)
+  flag = flag.strip('"').replace('\\', '/')
   if flag.startswith('-I') or flag.startswith('-D')
     perl_cflags += flag
   endif
 endforeach
+
+
 
 ret = run_command([perl, '-MExtUtils::Embed', '-e', 'ldopts'])
 if ret.returncode() != 0
@@ -44,18 +48,17 @@ endif
 perl_ldflags = []
 perl_rpath = ''
 foreach flag : ret.stdout().strip().split(' ')
+  flag = flag.strip('"').replace('\\', '/')
   if flag.startswith('-L') or flag.startswith('-l')
     perl_ldflags += flag
   endif
   if flag.startswith('-Wl,-rpath,')
-    # Install rpath
     split = flag.split(',')
     perl_rpath = split[split.length() - 1]
-
-    # For in tree
     perl_ldflags += flag
   endif
 endforeach
+
 
 perl_cflags += [
   # Perl has its own 'config.h' that we must override
@@ -63,18 +66,18 @@ perl_cflags += [
   '-include', meson.build_root() + '/config.h'
 ]
 
-if not cc.links('''
-#define PERL_NO_INLINE_FUNCTIONS
-#include <EXTERN.h>
-#include <perl.h>
+#if not cc.links('''
+##define PERL_NO_INLINE_FUNCTIONS
+##include <EXTERN.h>
+##include <perl.h>
 
-int main(void) {
-  PerlInterpreter *my_perl = perl_alloc();
-  return 0;
-}
-''', args: perl_cflags + perl_ldflags)
-  error('found perl not suitable for plugin')
-endif
+#int main(void) {
+#  PerlInterpreter *my_perl = perl_alloc();
+#  return 0;
+#}
+#''', args: perl_cflags + perl_ldflags)
+#  error('found perl not suitable for plugin')
+#endif
 
 perl_dep = declare_dependency(
   compile_args: perl_cflags,

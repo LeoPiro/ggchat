@@ -62,6 +62,7 @@
 #include "userlistgui.h"
 #include "menu.h"
 #include "servlistgui.h"
+#include "bosstracker.h"
 
 static GSList *submenu_list;
 
@@ -108,6 +109,9 @@ nick_command (session * sess, char *cmd)
 
 /* fill in the %a %s %n etc and execute the command */
 
+extern void open_bosstracker_window(GtkWidget *widget, gpointer data);
+
+
 void
 nick_command_parse (session *sess, char *cmd, char *nick, char *allnick)
 {
@@ -147,6 +151,7 @@ nick_command_parse (session *sess, char *cmd, char *nick, char *allnick)
 
 	g_free (buf);
 }
+static void menu_bosstracker_cb(GtkWidget *item, gpointer none);
 
 /* userlist button has been clicked */
 
@@ -560,6 +565,12 @@ menu_destroy (GtkWidget *menu, gpointer objtounref)
 	if (objtounref)
 		g_object_unref (G_OBJECT (objtounref));
 	nick_submenu = NULL;
+}
+
+static void
+menu_toggle_ontop_cb (GtkCheckMenuItem *item, gpointer none)
+{
+	gtk_window_set_keep_above(GTK_WINDOW(parent_window), gtk_check_menu_item_get_active(item));
 }
 
 static void
@@ -1862,7 +1873,9 @@ static struct mymenu mymenu[] = {
 		{N_("Search Next"   ), menu_search_next, GTK_STOCK_FIND, M_MENUSTOCK, 0, 0, 1, GDK_KEY_g},
 		{N_("Search Previous"   ), menu_search_prev, GTK_STOCK_FIND, M_MENUSTOCK, 0, 0, 1, GDK_KEY_G},
 		{0, 0, 0, M_END, 0, 0, 0},
-
+	
+	{N_("Always On _Top"), menu_toggle_ontop_cb, 0, M_MENUTOG, 0, 0, 1},
+	{N_("Boss Tracker"), open_bosstracker_window, 0, M_MENUITEM, 0, 0, 1},
 	{N_("_Help"), 0, 0, M_NEWMENU, 0, 0, 1},	/* 74 */
 	{N_("_Contents"), menu_docs, GTK_STOCK_HELP, M_MENUSTOCK, 0, 0, 1, GDK_KEY_F1},
 	{N_("_About"), menu_about, GTK_STOCK_ABOUT, M_MENUSTOCK, 0, 0, 1},
@@ -2263,6 +2276,12 @@ menu_add_plugin_items (GtkWidget *menu, char *root, char *target)
 	}
 }
 
+static void menu_bosstracker_cb(GtkWidget *item, gpointer none)
+{
+    open_bosstracker_window(item, none);
+}
+
+
 /* === END STUFF FOR /MENU === */
 
 GtkWidget *
@@ -2490,8 +2509,25 @@ togitem:
 				}
 				if (usermenu)
 					usermenu_create (usermenu);
+
+				if (bar)
+				{
+					GtkWidget *ontop_menu = gtk_check_menu_item_new_with_label("Always on Top");
+					gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(ontop_menu), FALSE); // default off
+					gtk_menu_shell_append(GTK_MENU_SHELL(menu_bar), ontop_menu);
+					g_signal_connect(G_OBJECT(ontop_menu), "toggled", G_CALLBACK(menu_toggle_ontop_cb), NULL);
+					gtk_widget_show(ontop_menu);
+					
+					GtkWidget *bosstracker_menu = gtk_menu_item_new_with_label("Boss Tracker");
+					gtk_menu_shell_append(GTK_MENU_SHELL(menu_bar), bosstracker_menu);
+					g_signal_connect(G_OBJECT(bosstracker_menu), "activate", G_CALLBACK(menu_bosstracker_cb), NULL);
+					gtk_widget_show(bosstracker_menu);
+				}
+
+
 				return (menu_bar);
 			}
+
 			submenu = NULL;
 		}
 
