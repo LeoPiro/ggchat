@@ -63,6 +63,7 @@
 #include "menu.h"
 #include "servlistgui.h"
 #include "bosstracker.h"
+#include "vendor_coords.h"
 
 static GSList *submenu_list;
 
@@ -2281,6 +2282,11 @@ static void menu_bosstracker_cb(GtkWidget *item, gpointer none)
     open_bosstracker_window(item, none);
 }
 
+static void menu_vendorcoords_cb(GtkWidget *item, gpointer none)
+{
+    open_vendor_coords_dialog(item, none);
+}
+
 
 /* === END STUFF FOR /MENU === */
 
@@ -2522,6 +2528,11 @@ togitem:
 					gtk_menu_shell_append(GTK_MENU_SHELL(menu_bar), bosstracker_menu);
 					g_signal_connect(G_OBJECT(bosstracker_menu), "activate", G_CALLBACK(menu_bosstracker_cb), NULL);
 					gtk_widget_show(bosstracker_menu);
+					
+					GtkWidget *vendorcoords_menu = gtk_menu_item_new_with_label("Coords");
+					gtk_menu_shell_append(GTK_MENU_SHELL(menu_bar), vendorcoords_menu);
+					g_signal_connect(G_OBJECT(vendorcoords_menu), "activate", G_CALLBACK(menu_vendorcoords_cb), NULL);
+					gtk_widget_show(vendorcoords_menu);
 				}
 
 

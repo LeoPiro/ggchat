@@ -26,6 +26,7 @@ hexchat_gtk_sources = [
   'urlgrab.c',
   'userlistgui.c',
   './bosstracker.c',
+  './vendor_coords.c',
   'xtext.c'
 ]
 
